@@ -1,5 +1,6 @@
 package com.homeworklog;
 
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FillLayout;
@@ -31,8 +32,9 @@ public class SashFormLog extends Composite {
         });
 
         TableViwerLog tableViwerLog = new TableViwerLog(leftComposite);
+        TableViewer tableViewer = tableViwerLog.getTableViewer();
 
-        CompositeImputData compositeImputData = new CompositeImputData(rightComposite);
+        CompositeImputData compositeImputData = new CompositeImputData(rightComposite, tableViewer);
         compositeImputData.setLayout(new FillLayout());
 
         parent.pack();

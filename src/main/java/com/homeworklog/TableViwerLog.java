@@ -24,12 +24,15 @@ import org.eclipse.swt.widgets.TableColumn;
 
 public class TableViwerLog extends Composite {
 
+    private TableViewer tableViewer;
+    private Student[] students;
+
     public TableViwerLog(Composite parent) {
         super(parent, SWT.NONE);
 
         setLayout(new FillLayout());
 
-        TableViewer tableViewer = new TableViewer(this, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL);
+        tableViewer = new TableViewer(this, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL);
 
         TableLayout layout = new TableLayout();
         layout.addColumnData(new ColumnWeightData(3, 230, true));
@@ -196,8 +199,9 @@ public class TableViwerLog extends Composite {
         });
 
         tableViewer.setContentProvider(ArrayContentProvider.getInstance());
-        tableViewer.setInput(new Student[] { new Student("Толик", 1, true), new Student("Петя", 3, false),
-                new Student("Вася", 2, false) });
+        students = new Student[] { new Student("Толик", 1, true), new Student("Петя", 3, false),
+                new Student("Вася", 2, false) };
+        tableViewer.setInput(students);
 
         nameTableColumn.pack();
         groupTableColumn.pack();
@@ -206,4 +210,9 @@ public class TableViwerLog extends Composite {
         pack();
 
     }
+
+    public TableViewer getTableViewer() {
+        return tableViewer;
+    }
+
 }

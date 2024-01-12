@@ -1,6 +1,11 @@
 package com.homeworklog;
 
+import java.util.Arrays;
+
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -11,13 +16,15 @@ import org.eclipse.swt.widgets.Text;
 
 public class CompositeImputData extends Composite {
     private GridData gridData; 
-    
-    public CompositeImputData(Composite parent) {
+    private TableViewer tableViewer;
+   
+    public CompositeImputData(Composite parent, TableViewer tableViewer) {
         super(parent, SWT.NONE);
-        
+        this.tableViewer = tableViewer;
+
         Group group = new Group(this, SWT.SHADOW_ETCHED_IN);
         group.setLayout(new GridLayout(4, true));
-        
+
         Label labelName = new Label(group, SWT.NONE);
         labelName.setText("Name: ");
         gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -67,25 +74,43 @@ public class CompositeImputData extends Composite {
         gridData.verticalIndent = 20;
         saveButton.setLayoutData(gridData);
         saveButton.pack();
-        
+
+        saveButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                String name = textName.getText();
+                String group = textGroup.getText();
+                boolean isDone = checkButton.getSelection();
+
+                saveRowTotable(name, group, isDone);
+            }
+        });
+
         Button deleteButton = new Button(group, SWT.PUSH);
         deleteButton.setText("Delete");
         gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
         gridData.verticalIndent = 20;
         deleteButton.setLayoutData(gridData);
         deleteButton.pack();
-        
+
         Button cancelButton = new Button(group, SWT.PUSH);
         cancelButton.setText("Cancel");
         gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
         gridData.verticalIndent = 20;
         cancelButton.setLayoutData(gridData);
         cancelButton.pack();
-        
+
         parent.pack();
         group.pack();
         pack();
-        
+
+    }
+
+    private void saveRowTotable(String name, String group, boolean isDone) {
+        Student[] currentStudents = (Student[]) tableViewer.getInput();
+        Student[] saveNewStudentToTable = Arrays.copyOf(currentStudents, currentStudents.length + 1);
+        saveNewStudentToTable[currentStudents.length] = new Student(name, Integer.parseInt(group), isDone);
+        tableViewer.setInput(saveNewStudentToTable);
     }
 
 }

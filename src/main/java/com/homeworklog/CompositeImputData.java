@@ -1,7 +1,9 @@
 package com.homeworklog;
 
-import java.util.Arrays;
+import java.util.List;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -68,6 +70,15 @@ public class CompositeImputData extends Composite {
         newButton.setLayoutData(gridData);
         newButton.pack();
         
+        newButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                textName.setText("");
+                textGroup.setText("");
+                checkButton.setSelection(false);
+            }
+        });
+        
         Button saveButton = new Button(group, SWT.PUSH);
         saveButton.setText("Save");
         gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -81,8 +92,11 @@ public class CompositeImputData extends Composite {
                 String name = textName.getText();
                 String group = textGroup.getText();
                 boolean isDone = checkButton.getSelection();
-
-                saveRowTotable(name, group, isDone);
+                if(name != null && !name.isEmpty() && group != null && !group.isEmpty()) {
+                    saveRowToTable(name, group, isDone); 
+                }else {
+                    MessageDialog.openError(saveButton.getShell(), "Error", "You did not enter a name or group!");
+                }
             }
         });
 
@@ -93,12 +107,35 @@ public class CompositeImputData extends Composite {
         deleteButton.setLayoutData(gridData);
         deleteButton.pack();
 
+        deleteButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
+                if (!selection.isEmpty()) {
+                    List<Student> students = (List<Student>)tableViewer.getInput();
+                    students.removeAll(selection.toList());
+                    tableViewer.setInput(students);
+                } else {
+                    MessageDialog.openError(deleteButton.getShell(), "Error", "No row selected for deletion!");
+                }
+            }
+        });
+
         Button cancelButton = new Button(group, SWT.PUSH);
         cancelButton.setText("Cancel");
         gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
         gridData.verticalIndent = 20;
         cancelButton.setLayoutData(gridData);
         cancelButton.pack();
+        
+        cancelButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                textName.setEnabled(false);
+                textGroup.setEnabled(false);
+                checkButton.setEnabled(false);
+            }
+        });
 
         parent.pack();
         group.pack();
@@ -106,11 +143,11 @@ public class CompositeImputData extends Composite {
 
     }
 
-    private void saveRowTotable(String name, String group, boolean isDone) {
-        Student[] currentStudents = (Student[]) tableViewer.getInput();
-        Student[] saveNewStudentToTable = Arrays.copyOf(currentStudents, currentStudents.length + 1);
-        saveNewStudentToTable[currentStudents.length] = new Student(name, Integer.parseInt(group), isDone);
-        tableViewer.setInput(saveNewStudentToTable);
+    private void saveRowToTable(String name, String group, boolean isDone) {
+        List<Student> students = (List<Student>) tableViewer.getInput();
+        Student student = new Student(name, Integer.parseInt(group), isDone);
+        students.add(student);
+        tableViewer.setInput(students);
     }
 
 }

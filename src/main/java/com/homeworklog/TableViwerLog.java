@@ -1,5 +1,8 @@
 package com.homeworklog;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -25,7 +28,7 @@ import org.eclipse.swt.widgets.TableColumn;
 public class TableViwerLog extends Composite {
 
     private TableViewer tableViewer;
-    private Student[] students;
+    private List<Student> students = new ArrayList<>();
 
     public TableViwerLog(Composite parent) {
         super(parent, SWT.NONE);
@@ -199,8 +202,9 @@ public class TableViwerLog extends Composite {
         });
 
         tableViewer.setContentProvider(ArrayContentProvider.getInstance());
-        students = new Student[] { new Student("Толик", 1, true), new Student("Петя", 3, false),
-                new Student("Вася", 2, false) };
+        students.add(new Student("Толик", 1, true));
+        students.add(new Student("Петя", 3, false));
+        students.add(new Student("Вася", 2, false));
         tableViewer.setInput(students);
 
         nameTableColumn.pack();

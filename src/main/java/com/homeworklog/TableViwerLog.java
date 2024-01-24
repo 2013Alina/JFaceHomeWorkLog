@@ -1,8 +1,13 @@
 package com.homeworklog;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -23,15 +28,93 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableColumn;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TableViwerLog extends Composite {
 
     private TableViewer tableViewer;
     private List<Student> students = new ArrayList<>();
+    private CompositeImputData inputComposite;
 
     public TableViwerLog(Composite parent) {
         super(parent, SWT.NONE);
+        
+        MenuManager fileMenu = new MenuManager("File");
+        Action clearAction = new Action("Clear") {
+            @Override
+            public void run() {
+                tableViewer.setInput(Collections.emptyList());
+            }
+        };
+        fileMenu.add(clearAction);
+
+        Action openAction = new Action("Open") {
+            @Override
+            public void run() {
+                loadFromJson();
+            }
+        };
+        fileMenu.add(openAction);
+
+        Action saveAction = new Action("Save") {
+            @Override
+            public void run() {
+                boolean shouldSave = askForSaveConfirmation();
+                if (shouldSave) {
+                    saveToJson();
+                }
+            }
+        };
+        fileMenu.add(saveAction);
+
+        Action exitAction = new Action("Exit") {
+            @Override
+            public void run() {
+                getShell().close();
+            }
+        };
+        fileMenu.add(exitAction);
+
+        MenuManager editMenu = new MenuManager("Edit");
+        Action addAction = new Action("Add") {
+            @Override
+            public void run() {
+                inputComposite = getInputComposite();
+                if (inputComposite != null) {
+                    inputComposite.inputFields();
+                }
+            }
+        };
+        editMenu.add(addAction);
+
+        Action deleteAction = new Action("Delete") {
+            @Override
+            public void run() {
+
+            }
+        };
+        editMenu.add(deleteAction);
+
+        MenuManager helpMenu = new MenuManager("Help");
+        Action aboutAction = new Action("About") {
+            @Override
+            public void run() {
+
+            }
+        };
+        helpMenu.add(aboutAction);
+
+        Menu menuBar = new Menu(parent.getShell(), SWT.BAR);
+        fileMenu.fill(menuBar, -1);
+        editMenu.fill(menuBar, -1);
+        helpMenu.fill(menuBar, -1);
+        parent.getShell().setMenuBar(menuBar);
 
         setLayout(new FillLayout());
 
@@ -213,10 +296,75 @@ public class TableViwerLog extends Composite {
         parent.pack();
         pack();
 
+        tableViewer.getTable().addDisposeListener(e -> {
+            fileMenu.dispose();
+            editMenu.dispose();
+            helpMenu.dispose();
+        });
+
+    }
+    
+    private void saveToJson() {
+        FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
+        fileDialog.setFilterExtensions(new String[] { "*.json" });
+        String selectedFile = fileDialog.open();
+
+        if (selectedFile != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                objectMapper.writeValue(new File(selectedFile), students);
+
+                MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_INFORMATION);
+                messageBox.setMessage("Data saved to file successfully " + selectedFile);
+                messageBox.open();
+            } catch (IOException e) {
+                e.printStackTrace();
+                MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_ERROR);
+                messageBox.setMessage("Error saving data");
+                messageBox.open();
+            }
+        }
     }
 
+    private boolean askForSaveConfirmation() {
+        MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+        messageBox.setMessage("Wanna save your changes?");
+        messageBox.setText("Save Confirmation");
+        int response = messageBox.open();
+        return response == SWT.YES;
+    }
+    
+    private void loadFromJson() {
+        FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
+        fileDialog.setFilterExtensions(new String[] { "*.json" });
+        String selectedFile = fileDialog.open();
+
+        if (selectedFile != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                students = objectMapper.readValue(new File(selectedFile), new TypeReference<List<Student>>() {
+                });
+                tableViewer.setInput(students);
+
+                MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_INFORMATION);
+                messageBox.setMessage("The data has been successfully loaded from the file " + selectedFile);
+                messageBox.open();
+            } catch (IOException e) {
+                e.printStackTrace();
+                MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_ERROR);
+                messageBox.setMessage("Error loading data");
+                messageBox.open();
+            }
+        }
+    }
+    
     public TableViewer getTableViewer() {
         return tableViewer;
+    }
+    
+    public CompositeImputData getInputComposite() {
+        return inputComposite;
     }
 
 }

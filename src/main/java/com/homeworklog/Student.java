@@ -1,10 +1,15 @@
 package com.homeworklog;
 
-public class Student {
+import java.io.Serializable;
+
+public class Student implements Serializable {
     private String name;
     private int group;
     private boolean done;
 
+    public Student() {
+    }
+    
     public Student(String name, int group, boolean done) {
         this.name = name;
         this.group = group;

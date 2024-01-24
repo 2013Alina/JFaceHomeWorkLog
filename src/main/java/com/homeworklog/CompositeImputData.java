@@ -19,6 +19,9 @@ import org.eclipse.swt.widgets.Text;
 public class CompositeImputData extends Composite {
     private GridData gridData; 
     private TableViewer tableViewer;
+    private Text textName;
+    private Text textGroup;
+    private Button checkButton;
    
     public CompositeImputData(Composite parent, TableViewer tableViewer) {
         super(parent, SWT.NONE);
@@ -33,7 +36,7 @@ public class CompositeImputData extends Composite {
         labelName.setLayoutData(gridData);
         labelName.pack();
         
-        Text textName = new Text(group, SWT.BORDER);
+        textName = new Text(group, SWT.BORDER);
         textName.setSize(100, 20);
         gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
         textName.setLayoutData(gridData);
@@ -45,7 +48,7 @@ public class CompositeImputData extends Composite {
         labelGroup.setLayoutData(gridData);
         labelGroup.pack();
         
-        Text textGroup = new Text(group, SWT.BORDER);
+        textGroup = new Text(group, SWT.BORDER);
         textGroup.setSize(100, 20);
         gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
         textGroup.setLayoutData(gridData);
@@ -58,7 +61,7 @@ public class CompositeImputData extends Composite {
         labelDone.setLayoutData(gridData);
         labelDone.pack();
         
-        Button checkButton = new Button(group, SWT.CHECK);
+        checkButton = new Button(group, SWT.CHECK);
         gridData = new GridData(SWT.END, SWT.END, true, false, 3, 1);
         gridData.verticalIndent = 20;
         checkButton.setLayoutData(gridData);
@@ -131,9 +134,7 @@ public class CompositeImputData extends Composite {
         cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                textName.setEnabled(false);
-                textGroup.setEnabled(false);
-                checkButton.setEnabled(false);
+                disableInputFields();
             }
         });
 
@@ -148,6 +149,18 @@ public class CompositeImputData extends Composite {
         Student student = new Student(name, Integer.parseInt(group), isDone);
         students.add(student);
         tableViewer.setInput(students);
+    }
+    
+    public void disableInputFields() {
+        textName.setEnabled(false);
+        textGroup.setEnabled(false);
+        checkButton.setEnabled(false);
+    }
+    
+    public void inputFields() {
+        textName.setEnabled(true);
+        textGroup.setEnabled(true);
+        checkButton.setEnabled(true);
     }
 
 }

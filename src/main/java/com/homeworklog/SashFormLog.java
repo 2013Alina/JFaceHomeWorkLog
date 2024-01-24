@@ -12,12 +12,12 @@ public class SashFormLog extends Composite {
     public SashFormLog(Composite parent) {
         super(parent, SWT.NONE);
         setLayout(new FillLayout());
-
+        
         SashForm sashForm = new SashForm(this, SWT.HORIZONTAL);
-
+        
         Composite leftComposite = new Composite(sashForm, SWT.BORDER);
         leftComposite.setLayout(new FillLayout());
-
+        
         Composite rightComposite = new Composite(sashForm, SWT.BORDER);
         rightComposite.setLayout(new FillLayout());
 
@@ -36,7 +36,7 @@ public class SashFormLog extends Composite {
 
         CompositeImputData compositeImputData = new CompositeImputData(rightComposite, tableViewer);
         compositeImputData.setLayout(new FillLayout());
-
+        
         parent.pack();
         sashForm.pack();
         leftComposite.pack();

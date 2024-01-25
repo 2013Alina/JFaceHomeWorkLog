@@ -89,6 +89,25 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+        
+<!-- Plugin for launching an application via the command line cmd! -->
+<!-- cd C:\DevTools\GitSources\JFaceHomeWorkLog -->
+<!-- mvn clean package -->
+<!-- java -jar target/JFaceHomeWorkLog-0.0.1-SNAPSHOT.jar -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<archive>
+							<manifest>
+								<addClasspath>true</addClasspath>
+								<mainClass>com.homeworklog.JFaceApp</mainClass>
+							</manifest>
+						</archive>
+					</configuration>
+				</plugin>
+        
       </plugins>
     </pluginManagement>
   </build>

@@ -8,12 +8,14 @@ import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -26,11 +28,16 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -41,6 +48,7 @@ public class TableViwerLog extends Composite {
     private TableViewer tableViewer;
     private List<Student> students = new ArrayList<>();
     private CompositeImputData inputComposite;
+    private boolean inputEnabled = false;
 
     public TableViwerLog(Composite parent) {
         super(parent, SWT.NONE);
@@ -50,8 +58,10 @@ public class TableViwerLog extends Composite {
             @Override
             public void run() {
                 tableViewer.setInput(Collections.emptyList());
+                inputEnabled = true;
             }
         };
+        clearAction.setAccelerator(SWT.MOD1 + 'X');
         fileMenu.add(clearAction);
 
         Action openAction = new Action("Open") {
@@ -60,6 +70,7 @@ public class TableViwerLog extends Composite {
                 loadFromJson();
             }
         };
+        openAction.setAccelerator(SWT.MOD1 + 'O');
         fileMenu.add(openAction);
 
         Action saveAction = new Action("Save") {
@@ -71,6 +82,7 @@ public class TableViwerLog extends Composite {
                 }
             }
         };
+        saveAction.setAccelerator(SWT.MOD1 + 'C');
         fileMenu.add(saveAction);
 
         Action exitAction = new Action("Exit") {
@@ -79,6 +91,7 @@ public class TableViwerLog extends Composite {
                 getShell().close();
             }
         };
+        exitAction.setAccelerator(SWT.ALT + 'Q');
         fileMenu.add(exitAction);
 
         MenuManager editMenu = new MenuManager("Edit");
@@ -91,23 +104,54 @@ public class TableViwerLog extends Composite {
                 }
             }
         };
+        addAction.setAccelerator(SWT.MOD1 + 'V');
         editMenu.add(addAction);
 
         Action deleteAction = new Action("Delete") {
             @Override
             public void run() {
-
+                IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
+                if (!selection.isEmpty()) {
+                    List<Student> students = new ArrayList<>((List<Student>) tableViewer.getInput());
+                    students.removeAll(selection.toList());
+                    tableViewer.setInput(students);
+                } else {
+                    MessageDialog.openError(getShell(), "Error", "No row selected for deletion!");
+                }
             }
         };
+        deleteAction.setAccelerator(SWT.MOD1 + 'X');
         editMenu.add(deleteAction);
 
         MenuManager helpMenu = new MenuManager("Help");
         Action aboutAction = new Action("About") {
             @Override
             public void run() {
-
+                Shell shell = new Shell(getShell(), SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
+                shell.setLayout(new GridLayout(2, true));
+                shell.setText("About JFaceHomeWorkLog Application");
+                Label label = new Label(shell, SWT.NONE);
+                GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+                label.setLayoutData(data);
+                label.setText("Author: Muntian Alina");
+                label.setSize(200, 200);
+                Button closeButton = new Button(shell, SWT.PUSH);
+                GridData data1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+                closeButton.setLayoutData(data1);
+                closeButton.setText("Close");
+                closeButton.setSize(40, 40);
+                closeButton.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        shell.close();
+                    }
+                });
+                shell.pack();
+                shell.open();
+                shell.setSize(400,400);
             }
         };
+        aboutAction.setAccelerator(SWT.MOD1 + 'T');
         helpMenu.add(aboutAction);
 
         Menu menuBar = new Menu(parent.getShell(), SWT.BAR);

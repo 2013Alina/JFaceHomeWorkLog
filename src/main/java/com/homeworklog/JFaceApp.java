@@ -14,10 +14,6 @@ public class JFaceApp extends ApplicationWindow {
     @Override
     protected Control createContents(Composite parent) {
         MainComposite mainComposite = new MainComposite(parent);
-        
-        // Color color1 = new Color(255, 204, 255);
-        // mainComposite.setBackground(color1);
-
         parent.pack();
         mainComposite.pack();
         parent.setSize(1000, 300);

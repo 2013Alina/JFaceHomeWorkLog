@@ -1,5 +1,6 @@
 package com.homeworklog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -22,6 +23,7 @@ public class CompositeImputData extends Composite {
     private Text textName;
     private Text textGroup;
     private Button checkButton;
+    private boolean inputEnabled = true;
    
     public CompositeImputData(Composite parent, TableViewer tableViewer) {
         super(parent, SWT.NONE);
@@ -92,13 +94,15 @@ public class CompositeImputData extends Composite {
         saveButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                String name = textName.getText();
-                String group = textGroup.getText();
-                boolean isDone = checkButton.getSelection();
-                if(name != null && !name.isEmpty() && group != null && !group.isEmpty()) {
-                    saveRowToTable(name, group, isDone); 
-                }else {
-                    MessageDialog.openError(saveButton.getShell(), "Error", "You did not enter a name or group!");
+                if (inputEnabled) {
+                    String name = textName.getText();
+                    String group = textGroup.getText();
+                    boolean isDone = checkButton.getSelection();
+                    if (name != null && !name.isEmpty() && group != null && !group.isEmpty()) {
+                        saveRowToTable(name, group, isDone);
+                    } else {
+                        MessageDialog.openError(saveButton.getShell(), "Error", "You did not enter a name or group!");
+                    }
                 }
             }
         });
@@ -135,6 +139,7 @@ public class CompositeImputData extends Composite {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 disableInputFields();
+                inputEnabled = true;
             }
         });
 
@@ -145,19 +150,21 @@ public class CompositeImputData extends Composite {
     }
 
     private void saveRowToTable(String name, String group, boolean isDone) {
-        List<Student> students = (List<Student>) tableViewer.getInput();
+        List<Student> studentsList = new ArrayList<>((List<Student>) tableViewer.getInput());
         Student student = new Student(name, Integer.parseInt(group), isDone);
-        students.add(student);
-        tableViewer.setInput(students);
+        studentsList.add(student);
+        tableViewer.setInput(studentsList);
     }
-    
+
     public void disableInputFields() {
+        inputEnabled = false;
         textName.setEnabled(false);
         textGroup.setEnabled(false);
         checkButton.setEnabled(false);
     }
     
     public void inputFields() {
+        inputEnabled = true;
         textName.setEnabled(true);
         textGroup.setEnabled(true);
         checkButton.setEnabled(true);

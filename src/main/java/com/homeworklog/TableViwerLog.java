@@ -2,6 +2,7 @@ package com.homeworklog;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +50,7 @@ public class TableViwerLog extends Composite {
     private List<Student> students = new ArrayList<>();
     private CompositeImputData inputComposite;
     private boolean inputEnabled = false;
+    private Image image;
 
     public TableViwerLog(Composite parent) {
         super(parent, SWT.NONE);
@@ -128,13 +130,32 @@ public class TableViwerLog extends Composite {
             @Override
             public void run() {
                 Shell shell = new Shell(getShell(), SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
-                shell.setLayout(new GridLayout(2, true));
+                shell.setLayout(new GridLayout(1, true));
                 shell.setText("About JFaceHomeWorkLog Application");
                 Label label = new Label(shell, SWT.NONE);
                 GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
                 label.setLayoutData(data);
                 label.setText("Author: Muntian Alina");
                 label.setSize(200, 200);
+
+                image = null;
+                String imagePath = "/image.jpg";
+
+                System.out.println("Resource Path: " + getClass().getResource(imagePath));
+                System.out.println("Resource Stream: " + getClass().getResourceAsStream(imagePath));
+
+                try (InputStream imageStream = getClass().getResourceAsStream(imagePath)) {
+                    if (imageStream != null) {
+                        image = new Image(Display.getCurrent(), imageStream);
+                        Label imageLabel = new Label(shell, SWT.NONE);
+                        imageLabel.setImage(image);
+                    } else {
+                        System.err.println("Image not found!");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 Button closeButton = new Button(shell, SWT.PUSH);
                 GridData data1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
                 closeButton.setLayoutData(data1);
@@ -146,11 +167,19 @@ public class TableViwerLog extends Composite {
                         shell.close();
                     }
                 });
+
                 shell.pack();
                 shell.open();
-                shell.setSize(400,400);
+                shell.setSize(400, 400);
+
+                shell.addDisposeListener(e -> {
+                    if (image != null && !image.isDisposed()) {
+                        image.dispose();
+                    }
+                });
             }
         };
+
         aboutAction.setAccelerator(SWT.MOD1 + 'T');
         helpMenu.add(aboutAction);
 
@@ -306,7 +335,7 @@ public class TableViwerLog extends Composite {
         swtDoneColumn.setEditingSupport(new EditingSupport(tableViewer) {
             @Override
             protected CellEditor getCellEditor(Object element) {
-                CheckboxCellEditor cellEditor = new CheckboxCellEditor(((TableViewer) element).getTable());
+                CheckboxCellEditor cellEditor = new CheckboxCellEditor(tableViewer.getTable());
                 return cellEditor;
             }
 

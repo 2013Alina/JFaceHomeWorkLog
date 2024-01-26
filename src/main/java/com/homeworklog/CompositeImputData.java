@@ -138,8 +138,9 @@ public class CompositeImputData extends Composite {
         cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                disableInputFields();
-                inputEnabled = true;
+                if (parent != null) {
+                    setVisible(false);
+                }
             }
         });
 
@@ -155,19 +156,4 @@ public class CompositeImputData extends Composite {
         studentsList.add(student);
         tableViewer.setInput(studentsList);
     }
-
-    public void disableInputFields() {
-        inputEnabled = false;
-        textName.setEnabled(false);
-        textGroup.setEnabled(false);
-        checkButton.setEnabled(false);
-    }
-    
-    public void inputFields() {
-        inputEnabled = true;
-        textName.setEnabled(true);
-        textGroup.setEnabled(true);
-        checkButton.setEnabled(true);
-    }
-
 }

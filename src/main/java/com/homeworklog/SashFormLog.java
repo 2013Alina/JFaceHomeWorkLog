@@ -9,18 +9,25 @@ import org.eclipse.swt.widgets.Sash;
 
 public class SashFormLog extends Composite {
 
+    private TableViwerLog tableViwerLog;
+    private CompositeImputData compositeImputData;
+    
     public SashFormLog(Composite parent) {
         super(parent, SWT.NONE);
+        init(parent);
+    }
+
+    private void init(Composite parent) {
         setLayout(new FillLayout());
         
         SashForm sashForm = new SashForm(this, SWT.HORIZONTAL);
         
-        Composite leftComposite = new Composite(sashForm, SWT.BORDER);
-        leftComposite.setLayout(new FillLayout());
+        tableViwerLog = new TableViwerLog(sashForm);
+        TableViewer tableViewer = tableViwerLog.getTableViewer();
         
-        Composite rightComposite = new Composite(sashForm, SWT.BORDER);
-        rightComposite.setLayout(new FillLayout());
-
+        compositeImputData = new CompositeImputData(sashForm, tableViewer);
+        compositeImputData.setLayout(new FillLayout());
+        
         Sash sash = new Sash(sashForm, SWT.SMOOTH);
         sashForm.setSashWidth(5);
 
@@ -31,19 +38,22 @@ public class SashFormLog extends Composite {
             sashForm.setWeights(new int[] { sashForm.getClientArea().width / 2, sashForm.getClientArea().width / 2 });
         });
 
-        TableViwerLog tableViwerLog = new TableViwerLog(leftComposite);
-        TableViewer tableViewer = tableViwerLog.getTableViewer();
-
-        CompositeImputData compositeImputData = new CompositeImputData(rightComposite, tableViewer);
-        compositeImputData.setLayout(new FillLayout());
         
         parent.pack();
         sashForm.pack();
-        leftComposite.pack();
-        rightComposite.pack();
         compositeImputData.pack();
         tableViwerLog.pack();
         pack();
-
     }
+
+    public TableViwerLog getTableViwerLog() {
+        return tableViwerLog;
+    }
+
+    public CompositeImputData getCompositeImputData() {
+        return compositeImputData;
+    }
+    
+    
+    
 }

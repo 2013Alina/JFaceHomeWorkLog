@@ -1,6 +1,5 @@
 package com.homeworklog;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,22 +32,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class TableViwerLog extends Composite {
 
     private TableViewer tableViewer;
     private List<Student> students = new ArrayList<>();
-    private CompositeImputData inputComposite;
     private boolean inputEnabled = false;
     private Image image;
 
@@ -100,9 +95,13 @@ public class TableViwerLog extends Composite {
         Action addAction = new Action("Add") {
             @Override
             public void run() {
-                inputComposite = getInputComposite();
-                if (inputComposite != null) {
-                    inputComposite.inputFields();
+                Composite sashForm = getParent();
+                Control[] children = sashForm.getChildren();
+                    
+                for (int i = 0; i < children.length; i++) {
+                    if (children[i] instanceof CompositeImputData) {
+                       children[i].setVisible(true);
+                    }
                 }
             }
         };
@@ -378,26 +377,7 @@ public class TableViwerLog extends Composite {
     }
     
     private void saveToJson() {
-        FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
-        fileDialog.setFilterExtensions(new String[] { "*.json" });
-        String selectedFile = fileDialog.open();
-
-        if (selectedFile != null) {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-
-                objectMapper.writeValue(new File(selectedFile), students);
-
-                MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_INFORMATION);
-                messageBox.setMessage("Data saved to file successfully " + selectedFile);
-                messageBox.open();
-            } catch (IOException e) {
-                e.printStackTrace();
-                MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_ERROR);
-                messageBox.setMessage("Error saving data");
-                messageBox.open();
-            }
-        }
+        JsonDataService.saveToJson((List<Student>)tableViewer.getInput(), getShell());
     }
 
     private boolean askForSaveConfirmation() {
@@ -407,37 +387,15 @@ public class TableViwerLog extends Composite {
         int response = messageBox.open();
         return response == SWT.YES;
     }
-    
+
     private void loadFromJson() {
-        FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
-        fileDialog.setFilterExtensions(new String[] { "*.json" });
-        String selectedFile = fileDialog.open();
-
-        if (selectedFile != null) {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                students = objectMapper.readValue(new File(selectedFile), new TypeReference<List<Student>>() {
-                });
-                tableViewer.setInput(students);
-
-                MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_INFORMATION);
-                messageBox.setMessage("The data has been successfully loaded from the file " + selectedFile);
-                messageBox.open();
-            } catch (IOException e) {
-                e.printStackTrace();
-                MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_ERROR);
-                messageBox.setMessage("Error loading data");
-                messageBox.open();
-            }
+        students = JsonDataService.loadFromJson(getShell());
+        if (students != null) {
+            tableViewer.setInput(students);
         }
     }
     
     public TableViewer getTableViewer() {
         return tableViewer;
     }
-    
-    public CompositeImputData getInputComposite() {
-        return inputComposite;
-    }
-
 }

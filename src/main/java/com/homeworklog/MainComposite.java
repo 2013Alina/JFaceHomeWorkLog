@@ -8,6 +8,10 @@ public class MainComposite extends Composite {
 
     public MainComposite(Composite parent) {
         super(parent, SWT.NONE);
+        init(parent);
+    }
+
+    private void init(Composite parent) {
         parent.getShell().setText("JFace homework log");
         
         setLayout(new FillLayout());

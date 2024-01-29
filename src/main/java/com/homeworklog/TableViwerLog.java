@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
@@ -27,6 +28,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -97,14 +99,36 @@ public class TableViwerLog extends Composite {
             public void run() {
                 Composite sashForm = getParent();
                 Control[] children = sashForm.getChildren();
-                    
+
                 for (int i = 0; i < children.length; i++) {
                     if (children[i] instanceof CompositeImputData) {
-                       children[i].setVisible(true);
+                        AtomicBoolean switchTable = ((CompositeImputData) children[i]).getSwitchTable();
+                        if (switchTable.get() == false) {
+                            
+                            this.makeNormalSizeTableViwerLog(sashForm);
+                            
+                            children[i].setVisible(true);
+                            AtomicBoolean switchTableNew = new AtomicBoolean(true);
+                            ((CompositeImputData) children[i]).setSwitchTable(switchTableNew);
+                            break;
+                        }
                     }
                 }
             }
+
+            private Point makeNormalSizeTableViwerLog(Composite parent) {
+                for (Control child : parent.getChildren()) {
+                    if (child instanceof TableViwerLog) {
+                        int width = 488;
+                        int height = 224;
+                        child.setSize(width, height );
+                        return child.getSize();
+                    }
+                }
+                return null;
+            }
         };
+        
         addAction.setAccelerator(SWT.MOD1 + 'V');
         editMenu.add(addAction);
 
@@ -192,6 +216,11 @@ public class TableViwerLog extends Composite {
 
         tableViewer = new TableViewer(this, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL);
 
+            tableViewer.getTable().addListener(SWT.Resize, event -> {
+                Point currentSize = tableViewer.getControl().getSize();
+//                System.out.println("TableViwerLog current size: " + currentSize);
+            });
+     
         TableLayout layout = new TableLayout();
         layout.addColumnData(new ColumnWeightData(3, 230, true));
         layout.addColumnData(new ColumnWeightData(1, 70, true));
@@ -202,7 +231,7 @@ public class TableViwerLog extends Composite {
 
         tableViewer.getTable().setHeaderVisible(true); // table header visibility
         tableViewer.getTable().setLinesVisible(true); // horizontal lines between lines will be visible
-
+        
         TableViewerColumn nameColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
         TableColumn nameTableColumn = nameColumn.getColumn();
         nameTableColumn.setText("Name");
@@ -361,13 +390,13 @@ public class TableViwerLog extends Composite {
         students.add(new Student("Петя", 3, false));
         students.add(new Student("Вася", 2, false));
         tableViewer.setInput(students);
-
+        
         nameTableColumn.pack();
         groupTableColumn.pack();
         swtDoneTableColumn.pack();
         parent.pack();
         pack();
-
+        
         tableViewer.getTable().addDisposeListener(e -> {
             fileMenu.dispose();
             editMenu.dispose();
@@ -375,7 +404,7 @@ public class TableViwerLog extends Composite {
         });
 
     }
-    
+
     private void saveToJson() {
         JsonDataService.saveToJson((List<Student>)tableViewer.getInput(), getShell());
     }

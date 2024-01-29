@@ -2,6 +2,7 @@ package com.homeworklog;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -9,10 +10,12 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -24,6 +27,7 @@ public class CompositeImputData extends Composite {
     private Text textGroup;
     private Button checkButton;
     private boolean inputEnabled = true;
+    private AtomicBoolean switchTable = new AtomicBoolean(true);
    
     public CompositeImputData(Composite parent, TableViewer tableViewer) {
         super(parent, SWT.NONE);
@@ -134,12 +138,23 @@ public class CompositeImputData extends Composite {
         gridData.verticalIndent = 20;
         cancelButton.setLayoutData(gridData);
         cancelButton.pack();
-        
+
         cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (parent != null) {
+                if (switchTable.get() == true) {
                     setVisible(false);
+
+                    Composite sashForm = getParent();
+                    Point sashFormSize = sashForm.getSize();
+                    Control[] children = sashForm.getChildren();
+                    for (int i = 0; i < children.length; i++) {
+                        if (children[i] instanceof TableViwerLog) {
+                            ((TableViwerLog) children[i]).setSize(sashFormSize);
+                            switchTable.set(false);
+                            break;
+                        }
+                    }
                 }
             }
         });
@@ -156,4 +171,13 @@ public class CompositeImputData extends Composite {
         studentsList.add(student);
         tableViewer.setInput(studentsList);
     }
+
+    public AtomicBoolean getSwitchTable() {
+        return switchTable;
+    }
+
+    public void setSwitchTable(AtomicBoolean switchTable) {
+        this.switchTable = switchTable;
+    }
 }
+

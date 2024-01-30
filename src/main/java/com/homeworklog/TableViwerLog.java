@@ -102,14 +102,11 @@ public class TableViwerLog extends Composite {
 
                 for (int i = 0; i < children.length; i++) {
                     if (children[i] instanceof CompositeImputData) {
-                        AtomicBoolean switchTable = ((CompositeImputData) children[i]).getSwitchTable();
-                        if (switchTable.get() == false) {
-                            
+                        boolean switchTable = ((CompositeImputData) children[i]).isSwitchTable();
+                        if (!switchTable) {
                             this.makeNormalSizeTableViwerLog(sashForm);
-                            
                             children[i].setVisible(true);
-                            AtomicBoolean switchTableNew = new AtomicBoolean(true);
-                            ((CompositeImputData) children[i]).setSwitchTable(switchTableNew);
+                            ((CompositeImputData) children[i]).setSwitchTable(true);
                             break;
                         }
                     }
@@ -121,14 +118,14 @@ public class TableViwerLog extends Composite {
                     if (child instanceof TableViwerLog) {
                         int width = 488;
                         int height = 224;
-                        child.setSize(width, height );
+                        child.setSize(width, height);
                         return child.getSize();
                     }
                 }
                 return null;
             }
         };
-        
+
         addAction.setAccelerator(SWT.MOD1 + 'V');
         editMenu.add(addAction);
 

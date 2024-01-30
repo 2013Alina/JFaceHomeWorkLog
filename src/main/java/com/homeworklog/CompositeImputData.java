@@ -27,7 +27,7 @@ public class CompositeImputData extends Composite {
     private Text textGroup;
     private Button checkButton;
     private boolean inputEnabled = true;
-    private AtomicBoolean switchTable = new AtomicBoolean(true);
+    private boolean switchTable = true;
    
     public CompositeImputData(Composite parent, TableViewer tableViewer) {
         super(parent, SWT.NONE);
@@ -142,16 +142,15 @@ public class CompositeImputData extends Composite {
         cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (switchTable.get() == true) {
+                if (switchTable) {
                     setVisible(false);
-
                     Composite sashForm = getParent();
                     Point sashFormSize = sashForm.getSize();
                     Control[] children = sashForm.getChildren();
                     for (int i = 0; i < children.length; i++) {
                         if (children[i] instanceof TableViwerLog) {
                             ((TableViwerLog) children[i]).setSize(sashFormSize);
-                            switchTable.set(false);
+                            switchTable = false;
                             break;
                         }
                     }
@@ -172,11 +171,11 @@ public class CompositeImputData extends Composite {
         tableViewer.setInput(studentsList);
     }
 
-    public AtomicBoolean getSwitchTable() {
+    public boolean isSwitchTable() {
         return switchTable;
     }
 
-    public void setSwitchTable(AtomicBoolean switchTable) {
+    public void setSwitchTable(boolean switchTable) {
         this.switchTable = switchTable;
     }
 }

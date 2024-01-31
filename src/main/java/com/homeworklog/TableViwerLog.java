@@ -176,6 +176,7 @@ public class TableViwerLog extends Composite {
                     e.printStackTrace();
                 }
 
+
                 Button closeButton = new Button(shell, SWT.PUSH);
                 GridData data1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
                 closeButton.setLayoutData(data1);
